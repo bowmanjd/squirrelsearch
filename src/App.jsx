@@ -1,13 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
-import { atom, useAtom } from 'jotai';
 import './App.css'
 
-const currentIdx = atom(-1);
-const timerList = atom([]);
-
-function SearchTerm({index, term, target, waitTime}) {
+function SearchTerm({index, term, target, waitTime, currentIndex, setCurrentIndex}) {
   const [status, setStatus] = useState('ready');
-  const [currentIndex, setCurrentIndex] = useAtom(currentIdx);
   const timer = useRef(null);
 
   if (index === currentIndex && status === 'ready') {
@@ -43,7 +38,7 @@ async function fetchQueries (quantity) {
 
 function TermsList() {
   const [terms, setTerms] = useState([]);
-  const [currentIndex, setCurrentIndex] = useAtom(currentIdx);
+  const [currentIndex, setCurrentIndex] = useState(-1);
   const wakelock = useRef(null);
 
   useEffect(() => {
@@ -72,7 +67,7 @@ function TermsList() {
     });
   }
 
-  const listItems = terms.map(query => <li key={query.index}><SearchTerm index={query.index} target={query.target} term={query.query} waitTime={query.waitTime} /></li>);
+  const listItems = terms.map(query => <li key={query.index}><SearchTerm index={query.index} target={query.target} term={query.query} waitTime={query.waitTime} currentIndex={currentIndex} setCurrentIndex={setCurrentIndex} /></li>);
 
   return (
     <>
