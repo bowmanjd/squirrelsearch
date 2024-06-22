@@ -1,21 +1,36 @@
 import { useState, useEffect, useRef } from 'react'
 import './App.css'
 
-function SearchTerm({index, term, target, waitTime, currentIndex, setCurrentIndex, checkLock}) {
+function usePageVisibility() {
+  const [isVisible, setIsVisible] = useState(!document.hidden);
+
+  useEffect(() => {
+    function handleVisibilityChange() {
+      setIsVisible(document.visibilityState === 'visible');
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
+  return isVisible;
+}
+
+function SearchTerm({index, term, target, waitTime, currentIndex, setCurrentIndex}) {
   const [status, setStatus] = useState('ready');
   const timer = useRef(null);
 
   if (index === currentIndex && status === 'ready') {
     setStatus('pending');
     if (timer.current === null) {
-      checkLock();
       timer.current = setTimeout(() => {
         const win = window.open(target);
         setStatus('complete');
         setCurrentIndex(index + 1);
         setTimeout(() => {
           win.close();
-          setTimeout(checkLock, 500);
         }, 3000);
       }, waitTime);
     }
@@ -29,8 +44,6 @@ function SearchTerm({index, term, target, waitTime, currentIndex, setCurrentInde
 }
 
 async function fetchQueries (quantity) {
-  // https://www.bing.com/profile/history
-  // queries = [...new Set(Array.from(document.querySelectorAll('.query-list__requery-link')).map((t) => { return t.text}))]
   const response = await fetch(`/queries.json`);
   const data = await response.json();
   const sorted = data.sort(() => 0.5 - Math.random());
@@ -42,6 +55,7 @@ function TermsList() {
   const [terms, setTerms] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
   const wakelock = useRef(null);
+  const isVisible = usePageVisibility();
 
   useEffect(() => {
     fetchQueries(35).then(queries => {
@@ -55,6 +69,13 @@ function TermsList() {
       }));
     });
   }, []);
+
+  useEffect(() => {
+    if (isVisible) {
+      checkLock()
+    }
+  }, [isVisible]);
+
 
   const onStart = () => {
     setCurrentIndex(0);
@@ -76,7 +97,9 @@ function TermsList() {
     }
   }
 
-  const listItems = terms.map(query => <li key={query.index}><SearchTerm index={query.index} target={query.target} term={query.query} waitTime={query.waitTime} currentIndex={currentIndex} setCurrentIndex={setCurrentIndex} checkLock={checkLock} /></li>);
+  checkLock();
+
+  const listItems = terms.map(query => <li key={query.index}><SearchTerm index={query.index} target={query.target} term={query.query} waitTime={query.waitTime} currentIndex={currentIndex} setCurrentIndex={setCurrentIndex} /></li>);
 
   return (
     <>
