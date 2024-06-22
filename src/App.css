@@ -1,0 +1,24 @@
+#root {
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+li {
+  list-style-type: none;
+  margin: 0;
+}
+
+li a {
+  text-decoration: none;
+  color: lightblue;
+}
+
+li a.pending {
+  text-decoration: none;
+  color: orange;
+}
+
+li a.complete {
+  text-decoration: none;
+  color: lightgreen;
+}
