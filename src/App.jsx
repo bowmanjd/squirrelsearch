@@ -54,18 +54,28 @@ function TermsList() {
     });
   }, []);
 
-  const onStart = async () => {
-    if ("wakeLock" in navigator) {
-      wakelock.current = await navigator.wakeLock.request("screen");
-    }
+  const onStart = () => {
     setCurrentIndex(0);
+    checkLock();
   }
 
-  if (currentIndex >= terms.length - 1 && wakelock.current !== null) {
-    wakelock.current.release().then(() => {
-      wakelock.current = null;
-    });
+  const checkLock = async () => {
+    if (currentIndex >= 0 && currentIndex < terms.length && wakelock.current === null && "wakeLock" in navigator) {
+      wakelock.current = await navigator.wakeLock.request("screen");
+      console.log('wakelocked');
+      wakelock.current.addEventListener("release", () => {
+        wakelock.current = null;
+        console.log('wakelock released');
+      });
+    } else if (currentIndex >= terms.length && wakelock.current !== null) {
+      wakelock.current.release().then(() => {
+        wakelock.current = null;
+        console.log('wakelock released finally');
+      });
+    }
   }
+
+  checkLock();
 
   const listItems = terms.map(query => <li key={query.index}><SearchTerm index={query.index} target={query.target} term={query.query} waitTime={query.waitTime} currentIndex={currentIndex} setCurrentIndex={setCurrentIndex} /></li>);
 
