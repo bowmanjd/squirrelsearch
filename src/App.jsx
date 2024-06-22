@@ -48,7 +48,7 @@ function TermsList() {
           index: index,
           query: query,
           waitTime: Math.floor(Math.random() * 5000) + 8000,
-          target: 'https://www.bing.com/search?form=QBRE&q=' + encodeURIComponent(query)
+          target: 'https://www.bing.com/search?form=MOZLBR&pc=MOZI&q=' + encodeURIComponent(query)
         } 
       }));
     });
