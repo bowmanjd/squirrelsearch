@@ -1,19 +1,21 @@
 import { useState, useEffect, useRef } from 'react'
 import './App.css'
 
-function SearchTerm({index, term, target, waitTime, currentIndex, setCurrentIndex}) {
+function SearchTerm({index, term, target, waitTime, currentIndex, setCurrentIndex, checkLock}) {
   const [status, setStatus] = useState('ready');
   const timer = useRef(null);
 
   if (index === currentIndex && status === 'ready') {
     setStatus('pending');
     if (timer.current === null) {
+      checkLock();
       timer.current = setTimeout(() => {
         const win = window.open(target);
         setStatus('complete');
         setCurrentIndex(index + 1);
         setTimeout(() => {
           win.close();
+          setTimeout(checkLock, 500);
         }, 3000);
       }, waitTime);
     }
@@ -56,7 +58,6 @@ function TermsList() {
 
   const onStart = () => {
     setCurrentIndex(0);
-    checkLock();
   }
 
   const checkLock = async () => {
@@ -75,9 +76,7 @@ function TermsList() {
     }
   }
 
-  checkLock();
-
-  const listItems = terms.map(query => <li key={query.index}><SearchTerm index={query.index} target={query.target} term={query.query} waitTime={query.waitTime} currentIndex={currentIndex} setCurrentIndex={setCurrentIndex} /></li>);
+  const listItems = terms.map(query => <li key={query.index}><SearchTerm index={query.index} target={query.target} term={query.query} waitTime={query.waitTime} currentIndex={currentIndex} setCurrentIndex={setCurrentIndex} checkLock={checkLock} /></li>);
 
   return (
     <>
