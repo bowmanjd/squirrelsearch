@@ -63,7 +63,7 @@ function TermsList() {
         return {
           index: index,
           query: query,
-          waitTime: Math.floor(Math.random() * 5000) + 8000,
+          waitTime: Math.floor(Math.random() * 100000) + 40000,
           target: 'https://www.bing.com/search?form=MOZLBR&pc=MOZI&q=' + encodeURIComponent(query)
         } 
       }));
